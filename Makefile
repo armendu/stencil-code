@@ -18,7 +18,7 @@ INCLUDE_DIR = ./include
 ####################################################################
 # Flag Definitions                                                 #
 ####################################################################
-FLAGS = -Wall -D_XOPEN_SOURCE -D_DEFAULT_SOURCE -c -ansi -g
+FLAGS = -lm -fopenmp -Wall -g -Wl,--version-script,exportmap
 # SPLINTFLAGS = +standard -skipposixheaders -mustfreeonly -likelybool -temptrans -usedef
 
 SPLINTFLAGS = +posixlib +standard -mustfreeonly -likelybool \
@@ -42,40 +42,13 @@ $(EXE_DIR):
 ####################################################################
 # Build instructions			 								   #
 ####################################################################
-all: $(OBJ_DIR) $(EXE_DIR) $(EXE_DIR)/client $(EXE_DIR)/server 
+all: $(OBJ_DIR) $(EXE_DIR) $(EXE_DIR)/stencil_code_main 
 
-$(EXE_DIR)/client: $(OBJ_DIR)/client.o $(OBJ_DIR)/main_handler.o $(OBJ_DIR)/nm_pipe.o $(OBJ_DIR)/sh_sem.o $(OBJ_DIR)/sh_mem.o $(OBJ_DIR)/f_ser.o $(OBJ_DIR)/opt_proc.o $(OBJ_DIR)/rec_handler.o 
-	gcc $(OBJ_DIR)/client.o $(OBJ_DIR)/main_handler.o $(OBJ_DIR)/nm_pipe.o $(OBJ_DIR)/sh_sem.o $(OBJ_DIR)/sh_mem.o $(OBJ_DIR)/f_ser.o $(OBJ_DIR)/opt_proc.o -lrt $(OBJ_DIR)/rec_handler.o -lpthread -o $(EXE_DIR)/client
+$(EXE_DIR)/stencil_code_main: $(OBJ_DIR)/stencil_code_main.o
+	g++ $(OBJ_DIR)/stencil_code_main.o -o $(EXE_DIR)/stencil_code_main
 
-$(EXE_DIR)/server: $(OBJ_DIR)/server.o $(OBJ_DIR)/sh_sem.o $(OBJ_DIR)/sh_mem.o $(OBJ_DIR)/main_handler.o $(OBJ_DIR)/nm_pipe.o $(OBJ_DIR)/opt_proc.o $(OBJ_DIR)/f_ser.o $(OBJ_DIR)/rec_handler.o 
-	gcc $(OBJ_DIR)/server.o $(OBJ_DIR)/sh_sem.o $(OBJ_DIR)/sh_mem.o $(OBJ_DIR)/main_handler.o $(OBJ_DIR)/nm_pipe.o $(OBJ_DIR)/opt_proc.o $(OBJ_DIR)/f_ser.o $(OBJ_DIR)/rec_handler.o  -lrt -lpthread -o $(EXE_DIR)/server
-
-$(OBJ_DIR)/client.o: $(SRC_DIR)/client.c 
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/client.o $(SRC_DIR)/client.c 
-
-$(OBJ_DIR)/server.o: $(SRC_DIR)/server.c 
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/server.o $(SRC_DIR)/server.c 
-
-$(OBJ_DIR)/sh_sem.o: $(SRC_DIR)/sh_sem.c $(INCLUDE_DIR)/sh_sem.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/sh_sem.o $(SRC_DIR)/sh_sem.c
-
-$(OBJ_DIR)/sh_mem.o: $(SRC_DIR)/sh_mem.c $(INCLUDE_DIR)/sh_mem.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/sh_mem.o $(SRC_DIR)/sh_mem.c
-
-$(OBJ_DIR)/main_handler.o: $(SRC_DIR)/main_handler.c $(INCLUDE_DIR)/main_handler.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/main_handler.o $(SRC_DIR)/main_handler.c
-
-$(OBJ_DIR)/nm_pipe.o: $(SRC_DIR)/nm_pipe.c $(INCLUDE_DIR)/nm_pipe.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/nm_pipe.o $(SRC_DIR)/nm_pipe.c
-
-$(OBJ_DIR)/opt_proc.o: $(SRC_DIR)/opt_proc.c $(INCLUDE_DIR)/opt_proc.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/opt_proc.o $(SRC_DIR)/opt_proc.c
-	
-$(OBJ_DIR)/f_ser.o: $(SRC_DIR)/f_ser.c $(INCLUDE_DIR)/f_ser.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/f_ser.o $(SRC_DIR)/f_ser.c
-
-$(OBJ_DIR)/rec_handler.o: $(SRC_DIR)/rec_handler.c $(INCLUDE_DIR)/rec_handler.h
-	gcc $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/rec_handler.o $(SRC_DIR)/rec_handler.c
+$(OBJ_DIR)/stencil_code_main.o: $(SRC_DIR)/stencil_code_main.cpp
+	g++ $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/stencil_code_main.o $(SRC_DIR)/stencil_code_main.cpp
 
 dox:
 	mkdir -p $(DOX_DIR)
@@ -84,10 +57,8 @@ dox:
 	doxygen ./doc/client-server.dox
 
 splint:
-	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/server.c
-	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/sh_sem.c
-	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/f_ser.c
+	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/main.c
 	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/opt.c
 
 clean:
-	rm -rf $(OBJ_DIR) $(DOX_DIR) $(EXE_DIR) $(OUT_DIR) 
+	rm -rf $(OBJ_DIR) $(DOX_DIR) $(EXE_DIR) $(OUT_DIR)
