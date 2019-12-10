@@ -16,89 +16,51 @@ using namespace std;
 
 int main()
 {
-  int n_rows = 46080;
-  int n_cols = 46080;
-  float **matrix = new float *[n_rows]; // [0, 0, 3, 4, 5]
-
-  int i, j;
-
-  for (i = 0; i < n_rows; i++)
-  {
-    float *row = new float[n_cols];
-
-    for (j = 0; j < n_cols; j++)
-    {
-      // float* cell = &row[i];
-      if (i == 0 && j == 0)
-      {
-        row[j] = 0;
-      }
-      else if (i == 0 && j > 0)
-      {
-        row[j] = 250;
-      }
-      else if (j == 0 && i > 0)
-      {
-        row[j] = 150;
-      }
-      else
-      {
-        row[j] = 1;
-      }
-    }
-    matrix[i] = row;
-  }
+  const int n_rows = 46080;
+  const int n_cols = 46080;
+  float **matrix = new float *[n_rows];
 
   for (size_t i = 0; i < n_rows; i++)
   {
-
-    float *matrixRow = matrix[i];
-    for (size_t j = 0; j < n_cols; j++)
-    {
-      if (matrixRow[j] == 150) {
-        cout << matrixRow[j] << " ";
-        cout << "j: " << j << "i: " << i << endl; 
-      }
-    }
-    cout << "\n";
+    float *row = new float[n_cols];
+    matrix[i] = row;
   }
 
-  // float* matrixRow = &matrix[10];
+  // Timer t = Timer();
+  
+  // t.setInterval([&]() {
+  //     cout << "Hey.. After each 1s..." << endl;
+  // }, 1000); 
+  
+  // t.setTimeout([&]() {
+  //     cout << "Hey.. After 5.2s. But I will stop the timer!" << endl;
+  //     t.stop();
+  // }, 5200);
 
-  // cout << "0:" << matrixRow[0] << "\n";
-  // cout << "2:"<< matrixRow[2]<< "\n";
-  // cout << "Here";
-
-  // for (int i = 0; i < n_rows; i++)
-  // {
-  //   float *row = malloc(sizeof(float) * n_cols);
-
-  //   for (int j = 0; j < n_cols; j++)
-  //   {
-  //     if (i ==0 && j == 0)
-  //     {
-  //       row[j] = 0;
-  //     }
-  //     else if (i == 0 && j > 0)
-  //     {
-  //       row[j] = 250;
-  //     }
-  //     else if (j == 0 && i > 0)
-  //     {
-  //       row[j] = 150;
-  //     }
-  //     else
-  //     {
-  //       float *prev_row = kernel[i - 1];
-
-  //       row[j] = (abs(sin(prev_row[j - 1])) + abs(sin(row[j - 1])) + abs(sin(prev_row[j]))) * 100;
-  //     }
-  //     printf("%.6f \n", row[j]);
-  //   }
-
-  //   kernel[i] = row;
-  //   // printf("%d\n", i);
-  // }
+  for (size_t i = 0; i < n_rows; i++)
+  {
+    for (size_t j = 0; j < n_cols; j++)
+    {
+      if (i == 0 && j == 0)
+      {
+        matrix[i][j] = 0;
+      }
+      else if (i == 0 && j > 0)
+      {
+        matrix[i][j] = 250;
+      }
+      else if (j == 0 && i > 0)
+      {
+        matrix[i][j] = 150;
+      }
+      else
+      {
+        matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
+         abs(sin(matrix[i - 1][j - 1])) +
+         abs(sin(matrix[i - 1][j]))) * 100;
+      }
+    }
+  }
 
   return 0;
 }
