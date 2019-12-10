@@ -7,6 +7,9 @@
 # idea
 .idea/
 
+# build
+src/cmake-build-debug/*
+
 # Object files
 *.o
 *.ko
