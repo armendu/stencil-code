@@ -14,52 +14,43 @@ int main()
   // Sequential:
   // Matrix[8400][8400]:218.726
   // Time taken in milliseconds: 132362
-  const int n_rows = 46080;
-  const int n_cols = 46080;//8192;
+  const int n_rows = 46080; //8192;;
+  const int n_cols = 46080; //8192;
 
   std::cout << "Running..." << std::endl;
 
   float **matrix = new float *[n_rows];
 
+  // Initilize the known members of matrix
   for (size_t i = 0; i < n_rows; i++)
   {
     float *row = new float[n_cols];
     matrix[i] = row;
+
+    matrix[0][i] = 250;
+    matrix[i][0] = 150;
   }
+
+  matrix[0][0] = 0;
 
   std::cout << "Started timer." << std::endl;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  for (size_t i = 0; i < n_rows; i++)
+  for (size_t i = 1; i < n_rows; i++)
   {
-    for (size_t j = 0; j < n_cols; j++)
+    for (size_t j = 1; j < n_cols; j++)
     {
-      if (i == 0 && j == 0)
-      {
-        matrix[i][j] = 0;
-      }
-      else if (i == 0 && j > 0)
-      {
-        matrix[i][j] = 250;
-      }
-      else if (j == 0 && i > 0)
-      {
-        matrix[i][j] = 150;
-      }
-      else
-      {
-        matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
-                        abs(sin(matrix[i - 1][j - 1])) +
-                        abs(sin(matrix[i - 1][j]))) *
-                       100;
-      }
+      matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
+                      abs(sin(matrix[i - 1][j - 1])) +
+                      abs(sin(matrix[i - 1][j]))) *
+                     100;
     }
   }
 
-  std::cout << "Matrix[8400][8400]:" << matrix[8400][8400] << std::endl;
+  std::cout << "Matrix[500][500]:" << matrix[500][500] << std::endl;
 
   auto t2 = std::chrono::high_resolution_clock::now();
-  
+
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
