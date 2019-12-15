@@ -8,7 +8,7 @@
 
 void initialize_matrix();
 void execute_in_sequence();
-void execute_in_paralel();
+void execute_in_parallel();
 void print_solution();
 float **matrix;
 
@@ -23,7 +23,7 @@ int main()
   std::cout << "Started timer." << std::endl;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  execute_in_paralel();
+  execute_in_parallel();
   // execute_in_sequence();
 
   auto t2 = std::chrono::high_resolution_clock::now();
@@ -66,25 +66,26 @@ void execute_in_sequence()
   }
 }
 
-void execute_in_paralel()
+void execute_in_parallel()
 {
   for (int i = 1; i < N_ROWS * 2; i++)
   {
-      #pragma omp parallel for num_threads(10)
-      for (int j = 1; j <= i; j++)
+    #pragma omp parallel for num_threads(10)
+    for (int j = 1; j <= i; j++)
+    {
+      // int row = i - omp_get_thread_num();
+      int row = i - j + 1;
+
+      if (row < N_ROWS && j < N_COLS)
       {
-        // int row = i - omp_get_thread_num();
-        int row = i - j + 1;
-        
-        if( row < N_ROWS && j < N_COLS ) {
-          matrix[row][j] = (abs(sin(matrix[row][j - 1])) +
+        matrix[row][j] = (abs(sin(matrix[row][j - 1])) +
                           abs(sin(matrix[row - 1][j - 1])) +
                           abs(sin(matrix[row - 1][j]))) *
                          100;
-        }
       }
     }
-	}
+  }
+}
 
 void print_solution()
 {
