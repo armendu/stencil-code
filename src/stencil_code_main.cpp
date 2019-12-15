@@ -3,8 +3,8 @@
 #include <chrono>
 #include <omp.h>
 
-#define N_ROWS 3 //46080
-#define N_COLS 3 //46080
+#define N_ROWS 8092 //46080
+#define N_COLS 8092 //46080
 
 void initialize_matrix();
 void execute_in_sequence();
@@ -14,14 +14,6 @@ float **matrix;
 
 int main()
 {
-  // Parallel:
-  // Matrix[8400][8400]:218.726
-  // Time taken in milliseconds: 169083
-
-  // Sequential:
-  // Matrix[8400][8400]:218.726
-  // Time taken in milliseconds: 132362
-
   std::cout << "Running..." << std::endl;
 
   matrix = new float *[N_ROWS];
@@ -31,8 +23,8 @@ int main()
   std::cout << "Started timer." << std::endl;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  // execute_in_paralel();
-  execute_in_sequence();
+  execute_in_paralel();
+  // execute_in_sequence();
 
   auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -41,13 +33,13 @@ int main()
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
 
   // std::cout << "Matrix[200][200]:" << matrix[100][100] << std::endl;
-  print_solution();
+
   return 0;
 }
 
 void initialize_matrix()
 {
-  // Initilize the known members of matrix
+  #pragma omp parallel for num_threads(2)
   for (int i = 0; i < N_ROWS; i++)
   {
     float *row = new float[N_COLS];
@@ -76,34 +68,23 @@ void execute_in_sequence()
 
 void execute_in_paralel()
 {
-  for (int i = 1; i < N_ROWS; i++)
+  for (int i = 1; i < N_ROWS * 2; i++)
   {
-    #pragma omp parallel num_threads(i)
-    {
+      #pragma omp parallel for num_threads(10)
       for (int j = 1; j <= i; j++)
       {
-        int row = i - omp_get_thread_num();
-        // std::cout << "i:" << i << " j:" << j << " row:" << row << std::endl;
-
-        if (i == N_ROWS - 1)
-        {
-          matrix[row][j] = (abs(sin(matrix[j - 1 ][row])) +
-                          abs(sin(matrix[j - 1 ][row - 1])) +
-                          abs(sin(matrix[j][row - 1]))) *
-                         100;
-        }
-        else {
-// std::cout << "value: " << value << std::endl;
-        matrix[row][j] = (abs(sin(matrix[row][j - 1])) +
+        // int row = i - omp_get_thread_num();
+        int row = i - j + 1;
+        
+        if( row < N_ROWS && j < N_COLS ) {
+          matrix[row][j] = (abs(sin(matrix[row][j - 1])) +
                           abs(sin(matrix[row - 1][j - 1])) +
                           abs(sin(matrix[row - 1][j]))) *
                          100;
-        }           
-        
+        }
       }
     }
-  }
-}
+	}
 
 void print_solution()
 {
