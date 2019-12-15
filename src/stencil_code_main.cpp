@@ -3,10 +3,13 @@
 #include <chrono>
 #include <omp.h>
 
-#define N_ROWS 8192 //46080
-#define N_COLS 8192 //46080
+#define N_ROWS 3 //46080
+#define N_COLS 3 //46080
 
-void execute_sequential();
+void initialize_matrix();
+void execute_in_sequence();
+void execute_in_paralel();
+void print_solution();
 float **matrix;
 
 int main()
@@ -28,7 +31,8 @@ int main()
   std::cout << "Started timer." << std::endl;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  execute_sequential();
+  // execute_in_paralel();
+  execute_in_sequence();
 
   auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -36,8 +40,8 @@ int main()
 
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
 
-  std::cout << "Matrix[500][500]:" << matrix[500][500] << std::endl;
-
+  // std::cout << "Matrix[200][200]:" << matrix[100][100] << std::endl;
+  print_solution();
   return 0;
 }
 
@@ -56,7 +60,7 @@ void initialize_matrix()
   matrix[0][0] = 0;
 }
 
-void execute_sequential()
+void execute_in_sequence()
 {
   for (int i = 1; i < N_ROWS; i++)
   {
@@ -70,67 +74,45 @@ void execute_sequential()
   }
 }
 
-int paralel()
+void execute_in_paralel()
 {
-  // for (int i = 0; i < N_ROWS; i++)
-  // {
-  //   #pragma omp parallel num_threads(2)
-  //   {
-  //     int threadNumber = omp_get_thread_num();
+  for (int i = 1; i < N_ROWS; i++)
+  {
+    #pragma omp parallel num_threads(i)
+    {
+      for (int j = 1; j <= i; j++)
+      {
+        int row = i - omp_get_thread_num();
+        // std::cout << "i:" << i << " j:" << j << " row:" << row << std::endl;
 
-  //     for (int j = i; j < N_ROWS; j++)
-  //     {
+        if (i == N_ROWS - 1)
+        {
+          matrix[row][j] = (abs(sin(matrix[j - 1 ][row])) +
+                          abs(sin(matrix[j - 1 ][row - 1])) +
+                          abs(sin(matrix[j][row - 1]))) *
+                         100;
+        }
+        else {
+// std::cout << "value: " << value << std::endl;
+        matrix[row][j] = (abs(sin(matrix[row][j - 1])) +
+                          abs(sin(matrix[row - 1][j - 1])) +
+                          abs(sin(matrix[row - 1][j]))) *
+                         100;
+        }           
+        
+      }
+    }
+  }
+}
 
-  //       //If it is first thread,
-  //       // changa values iterating into rows
-  //       if (threadNumber == 0)
-  //       {
-  //         int row = i;
-  //         int col = j;
-
-  //         if (row == 0 && col == 0)
-  //         {
-  //           matrix[0][0] = 0;
-  //         }
-  //         else if (row == 0)
-  //         {
-  //           matrix[row][col] = 250;
-  //         }
-  //         else
-  //         {
-  //           matrix[row][col] = (abs(sin(matrix[row][col - 1])) +
-  //                               abs(sin(matrix[row - 1][col - 1])) +
-  //                               abs(sin(matrix[row - 1][col]))) *
-  //                              100;
-  //         }
-  //       }
-
-  //       //If it is second thread,
-  //       // changa values iterating into columns
-  //       else if (threadNumber == 1)
-  //       {
-  //         int row = j;
-  //         int col = i;
-
-  //         if (row == 0 && col == 0)
-  //         {
-  //           matrix[0][0] = 0;
-  //         }
-  //         else if (col == 0)
-  //         {
-  //           matrix[row][col] = 150;
-  //         }
-  //         else
-  //         {
-  //           matrix[row][col] = (abs(sin(matrix[row][col - 1])) +
-  //                               abs(sin(matrix[row - 1][col - 1])) +
-  //                               abs(sin(matrix[row - 1][col]))) *
-  //                              100;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  return 0;
+void print_solution()
+{
+  for (int i = 0; i < N_ROWS; i++)
+  {
+    for (int j = 0; j < N_COLS; j++)
+    {
+      std::cout<< matrix[i][j] << "\t\t";
+    }
+    std::cout << std::endl;
+  }
 }
