@@ -3,7 +3,11 @@
 #include <chrono>
 #include <omp.h>
 
-int sequential();
+#define N_ROWS 8192 //46080
+#define N_COLS 8192 //46080
+
+void execute_sequential();
+float **matrix;
 
 int main()
 {
@@ -14,40 +18,17 @@ int main()
   // Sequential:
   // Matrix[8400][8400]:218.726
   // Time taken in milliseconds: 132362
-  const int n_rows = 46080; //8192;;
-  const int n_cols = 46080; //8192;
 
   std::cout << "Running..." << std::endl;
 
-  float **matrix = new float *[n_rows];
+  matrix = new float *[N_ROWS];
 
-  // Initilize the known members of matrix
-  for (size_t i = 0; i < n_rows; i++)
-  {
-    float *row = new float[n_cols];
-    matrix[i] = row;
-
-    matrix[0][i] = 250;
-    matrix[i][0] = 150;
-  }
-
-  matrix[0][0] = 0;
+  initialize_matrix();
 
   std::cout << "Started timer." << std::endl;
   auto t1 = std::chrono::high_resolution_clock::now();
 
-  for (size_t i = 1; i < n_rows; i++)
-  {
-    for (size_t j = 1; j < n_cols; j++)
-    {
-      matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
-                      abs(sin(matrix[i - 1][j - 1])) +
-                      abs(sin(matrix[i - 1][j]))) *
-                     100;
-    }
-  }
-
-  std::cout << "Matrix[500][500]:" << matrix[500][500] << std::endl;
+  execute_sequential();
 
   auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -55,49 +36,49 @@ int main()
 
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
 
+  std::cout << "Matrix[500][500]:" << matrix[500][500] << std::endl;
+
   return 0;
 }
 
-int sequential(const int n_rows, const int n_cols)
+void initialize_matrix()
 {
-  // for (size_t i = 0; i < n_rows; i++)
-  // {
-  //   for (size_t j = 0; j < n_cols; j++)
-  //   {
-  //     if (i == 0 && j == 0)
-  //     {
-  //       matrix[i][j] = 0;
-  //     }
-  //     else if (i == 0 && j > 0)
-  //     {
-  //       matrix[i][j] = 250;
-  //     }
-  //     else if (j == 0 && i > 0)
-  //     {
-  //       matrix[i][j] = 150;
-  //     }
-  //     else
-  //     {
-  //       matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
-  //                       abs(sin(matrix[i - 1][j - 1])) +
-  //                       abs(sin(matrix[i - 1][j]))) *
-  //                      100;
-  //     }
-  //   }
-  // }
+  // Initilize the known members of matrix
+  for (int i = 0; i < N_ROWS; i++)
+  {
+    float *row = new float[N_COLS];
+    matrix[i] = row;
 
-  return 0;
+    matrix[0][i] = 250;
+    matrix[i][0] = 150;
+  }
+
+  matrix[0][0] = 0;
+}
+
+void execute_sequential()
+{
+  for (int i = 1; i < N_ROWS; i++)
+  {
+    for (int j = 1; j < N_COLS; j++)
+    {
+      matrix[i][j] = (abs(sin(matrix[i][j - 1])) +
+                      abs(sin(matrix[i - 1][j - 1])) +
+                      abs(sin(matrix[i - 1][j]))) *
+                     100;
+    }
+  }
 }
 
 int paralel()
 {
-  // for (int i = 0; i < n_rows; i++)
+  // for (int i = 0; i < N_ROWS; i++)
   // {
   //   #pragma omp parallel num_threads(2)
   //   {
   //     int threadNumber = omp_get_thread_num();
 
-  //     for (int j = i; j < n_rows; j++)
+  //     for (int j = i; j < N_ROWS; j++)
   //     {
 
   //       //If it is first thread,
