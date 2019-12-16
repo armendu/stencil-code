@@ -47,7 +47,7 @@ all: $(OBJ_DIR) $(EXE_DIR)/main #$(EXE_DIR)
 $(EXE_DIR)/main: $(OBJ_DIR)/stencil_code_main.o
 
 $(OBJ_DIR)/stencil_code_main.o: $(SRC_DIR)/stencil_code_main.cpp
-	g++ $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/stencil_code_main.o $(SRC_DIR)/stencil_code_main.cpp
+	g++ $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/stencil_code_main.o $(SRC_DIR)/stencil_code_main.cpp $(SRC_DIR)/get_opt.cpp $(INCLUDE_DIR)/get_opt.h
 
 dox:
 	mkdir -p $(DOX_DIR)
@@ -56,7 +56,7 @@ dox:
 	doxygen ./doc/client-server.dox
 
 splint:
-	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/main.c
+	splint $(SPLINTFLAGS) $(INCLUDEPATHS) $(SRC_DIR)/stencil_code_main.cpp
 
 clean:
 	rm -rf $(OBJ_DIR) $(DOX_DIR) $(EXE_DIR) $(OUT_DIR)

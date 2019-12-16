@@ -3,8 +3,11 @@
 #include <chrono>
 #include <omp.h>
 
-#define N_ROWS 8092 //46080
-#define N_COLS 8092 //46080
+#include "get_opt.h"
+
+#define N_ROWS 46080 //8092
+#define N_COLS 46080 //8092
+#define ERROR -1
 
 void initialize_matrix();
 void execute_in_sequence();
@@ -15,9 +18,16 @@ void validate_solution();
 float **matrix;
 float **sequencial_matrix;
 
-int main()
+int main(int argc, char** argv)
 {
   std::cout << "Running..." << std::endl;
+  
+  int get_opt_res = get_opt::get_options(argc, argv); 
+  if(get_opt_res == ERROR)
+  {
+    get_opt::usage();
+    return -1;
+  }
 
   matrix = new float *[N_ROWS];
   sequencial_matrix = new float *[N_ROWS];
@@ -105,26 +115,31 @@ void execute_in_parallel()
 
 void execute_in_parallel_2()
 {
-  for (int i = 2; i < N_ROWS + N_ROWS; i++)
-	{
-		if (i < N_ROWS)
-		{
-			//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
+  for (int i = 2; i < N_ROWS * 2; i++)
+  {
+    if (i < N_ROWS)
+    {
       #pragma omp parallel for num_threads(8)
-			for (int j = 1; j < i; j++)
-			{
-				matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) + fabs(sin(matrix[i - j][j - 1])) + fabs(sin(matrix[i - j - 1][j]))) * 100;
-			}
-		}
-		else {
-			//#pragma omp parallel for num_threads(((N_ROWS + N_ROWS - i) / threadsRatio) + 1)
+      for (int j = 1; j < i; j++)
+      {
+        matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) +
+                            fabs(sin(matrix[i - j][j - 1])) +
+                            fabs(sin(matrix[i - j - 1][j]))) *
+                           100;
+      }
+    }
+    else
+    {
       #pragma omp parallel for num_threads(8)
-			for (int j = N_ROWS - 1; j >= i - N_ROWS + 1; j--)
-			{
-				matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) + fabs(sin(matrix[i - j][j - 1])) + fabs(sin(matrix[i - j - 1][j]))) * 100;
-			}
-		}
-	}
+      for (int j = N_ROWS - 1; j >= i - N_ROWS + 1; j--)
+      {
+        matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) +
+                            fabs(sin(matrix[i - j][j - 1])) +
+                            fabs(sin(matrix[i - j - 1][j]))) *
+                           100;
+      }
+    }
+  }
 }
 
 void print_solution()
