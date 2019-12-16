@@ -4,9 +4,10 @@
 #include <omp.h>
 
 #include "get_opt.h"
+#include "io.h"
 
-#define N_ROWS 46080 //8092
-#define N_COLS 46080 //8092
+#define N_ROWS 8092 //46080 //8092
+#define N_COLS 8092 //46080 //8092
 #define ERROR -1
 
 void initialize_matrix();
@@ -21,7 +22,8 @@ float **sequencial_matrix;
 int main(int argc, char** argv)
 {
   std::cout << "Running..." << std::endl;
-  
+
+  int* arguments = new int[argc];
   int get_opt_res = get_opt::get_options(argc, argv); 
   if(get_opt_res == ERROR)
   {
@@ -43,6 +45,8 @@ int main(int argc, char** argv)
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
+  
+  io::write_result(duration);
 
   execute_in_sequence();
   
@@ -55,7 +59,7 @@ int main(int argc, char** argv)
 
 void initialize_matrix()
 {
-  #pragma omp parallel for num_threads(2)
+  // #pragma omp parallel for num_threads(2)
   for (int i = 0; i < N_ROWS; i++)
   {
     float *row = new float[N_COLS];
@@ -65,7 +69,7 @@ void initialize_matrix()
     matrix[i][0] = 150;
   }
 
-  #pragma omp parallel for num_threads(2)
+  // #pragma omp parallel for num_threads(2)
   for (int i = 0; i < N_ROWS; i++)
   {
     float *row = new float[N_COLS];

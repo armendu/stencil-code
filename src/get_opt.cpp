@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "get_opt.h"
+#include "arguments.h"
 
 int get_opt::get_options(int argc, char **argv)
 {
@@ -9,6 +10,15 @@ int get_opt::get_options(int argc, char **argv)
     std::cout << "Wrong number of arguments provided. \n";
     return -1;
   }
+  arguments args;
+
+  args.first_row = atoi(argv[1]);
+  args.first_col = atoi(argv[2]);
+  args.second_row = atoi(argv[3]);
+  args.second_col = atoi(argv[4]);
+  args.third_row = atoi(argv[5]);
+  args.third_col = atoi(argv[6]);
+
   std::cout << "Arguments: " << argc;
 
   return 0;
