@@ -6,12 +6,12 @@
 #include "get_opt.h"
 #include "io.h"
 
-#define N_ROWS    8092 //46080
-#define N_COLS    8092 //46080
-#define N_THREADS 10
+#define N_ROWS    46080//8192
+#define N_COLS    46080//8192
+#define N_THREADS 8
 #define ERROR     -1
 
-void initialize_matrices();
+void initialize_matrices(bool include_seq);
 void execute_in_sequence();
 void execute_in_parallel();
 void execute_in_parallel_2();
@@ -34,12 +34,13 @@ int main(int argc, char **argv)
     return -1;
   }
 
-  initialize_matrices();
+  initialize_matrices(true);
 
   std::cout << "Started timer." << std::endl;
 
   auto t1 = std::chrono::high_resolution_clock::now();
-  execute_in_parallel_2();
+  // execute_in_parallel_2();
+  execute_in_sequence();
   auto t2 = std::chrono::high_resolution_clock::now();
 
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void initialize_matrices()
+void initialize_matrices(bool include_seq)
 {
   matrix = new float *[N_ROWS];
   sequential_matrix = new float *[N_ROWS];
@@ -72,17 +73,20 @@ void initialize_matrices()
     matrix[i][0] = 150;
   }
 
-  // #pragma omp parallel for num_threads(2)
-  for (int i = 0; i < N_ROWS; i++)
+  if (include_seq)
   {
-    float *row = new float[N_COLS];
-    sequential_matrix[i] = row;
+    // #pragma omp parallel for num_threads(2)
+    for (int i = 0; i < N_ROWS; i++)
+    {
+      float *row = new float[N_COLS];
+      sequential_matrix[i] = row;
 
-    sequential_matrix[0][i] = 250;
-    sequential_matrix[i][0] = 150;
+      sequential_matrix[0][i] = 250;
+      sequential_matrix[i][0] = 150;
+    }
+    sequential_matrix[0][0] = 0;
   }
 
-  sequential_matrix[0][0] = 0;
   matrix[0][0] = 0;
 }
 
