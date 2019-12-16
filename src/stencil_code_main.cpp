@@ -6,37 +6,35 @@
 #include "get_opt.h"
 #include "io.h"
 
-#define N_ROWS 8092 //46080 //8092
-#define N_COLS 8092 //46080 //8092
-#define ERROR -1
+#define N_ROWS    8092 //46080
+#define N_COLS    8092 //46080
+#define N_THREADS 10
+#define ERROR     -1
 
-void initialize_matrix();
+void initialize_matrices();
 void execute_in_sequence();
 void execute_in_parallel();
 void execute_in_parallel_2();
 void print_solution();
-void validate_solution();
+void validate_solution(int *arguments);
 float **matrix;
 float **sequential_matrix;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   std::cout << "Running..." << std::endl;
 
-  int* arguments = new int[argc - 1];
-  // std::cout << (sizeof(arguments)/sizeof(*arguments)) << std::endl;
+  int *arguments = new int[argc - 1];
+
   int get_opt_res = get_opt::get_options(arguments, argc, argv);
 
-  if(get_opt_res == ERROR)
+  if (get_opt_res == ERROR)
   {
     get_opt::usage();
     return -1;
   }
 
-  matrix = new float *[N_ROWS];
-  sequential_matrix = new float *[N_ROWS];
-
-  initialize_matrix();
+  initialize_matrices();
 
   std::cout << "Started timer." << std::endl;
 
@@ -47,25 +45,22 @@ int main(int argc, char** argv)
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
   std::cout << "Time taken in milliseconds: " << duration << std::endl;
-  
+
   io::write_result(duration);
 
   execute_in_sequence();
-  
-  // std::cout << "Matrix[200][200]:" << matrix[100][100] << std::endl;
+
   // print_solution();
-  // validate_solution();
-  for (int i = 0; i < sizeof(arguments)/sizeof(*arguments); i+=2)
-  {
-    std::cout << "matrix value: " << matrix[arguments[i]][arguments[i + 1]];
-    std::cout << "sequential_matrix value: " << sequential_matrix[arguments[i]][arguments[i + 1]];
-  }
-  
+  validate_solution(arguments);
+
   return 0;
 }
 
-void initialize_matrix()
+void initialize_matrices()
 {
+  matrix = new float *[N_ROWS];
+  sequential_matrix = new float *[N_ROWS];
+
   // #pragma omp parallel for num_threads(2)
   for (int i = 0; i < N_ROWS; i++)
   {
@@ -97,9 +92,9 @@ void execute_in_sequence()
     for (int j = 1; j < N_COLS; j++)
     {
       sequential_matrix[i][j] = (abs(sin(sequential_matrix[i][j - 1])) +
-                      abs(sin(sequential_matrix[i - 1][j - 1])) +
-                      abs(sin(sequential_matrix[i - 1][j]))) *
-                     100;
+                                 abs(sin(sequential_matrix[i - 1][j - 1])) +
+                                 abs(sin(sequential_matrix[i - 1][j]))) *
+                                100;
     }
   }
 }
@@ -159,22 +154,23 @@ void print_solution()
   {
     for (int j = 0; j < N_COLS; j++)
     {
-      std::cout<< matrix[i][j] << "\t\t";
+      std::cout << matrix[i][j] << "\t\t";
     }
     std::cout << std::endl;
   }
 }
 
-void validate_solution()
+void validate_solution(int *arguments)
 {
-  for (size_t i = 0; i < N_ROWS; i++)
+  for (size_t i = 0; i < sizeof(arguments) / sizeof(*arguments); i += 2)
   {
-    for (size_t j = 0; j < N_COLS; j++)
+    std::cout << "matrix value: " << matrix[arguments[i]][arguments[i + 1]];
+    std::cout << "sequential_matrix value: " << sequential_matrix[arguments[i]][arguments[i + 1]];
+
+    if (matrix[arguments[i]][arguments[i + 1]] != sequential_matrix[arguments[i]][arguments[i + 1]])
     {
-     if (matrix[i][j] != sequential_matrix[i][j])
-     {
-       std::cout << "Not the same\n";
-     } 
+      std::cout << "Solution is invalid." << std::endl;
+      return;
     }
   }
 
