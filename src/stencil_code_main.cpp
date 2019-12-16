@@ -17,14 +17,16 @@ void execute_in_parallel_2();
 void print_solution();
 void validate_solution();
 float **matrix;
-float **sequencial_matrix;
+float **sequential_matrix;
 
 int main(int argc, char** argv)
 {
   std::cout << "Running..." << std::endl;
 
-  int* arguments = new int[argc];
-  int get_opt_res = get_opt::get_options(argc, argv); 
+  int* arguments = new int[argc - 1];
+  // std::cout << (sizeof(arguments)/sizeof(*arguments)) << std::endl;
+  int get_opt_res = get_opt::get_options(arguments, argc, argv);
+
   if(get_opt_res == ERROR)
   {
     get_opt::usage();
@@ -32,7 +34,7 @@ int main(int argc, char** argv)
   }
 
   matrix = new float *[N_ROWS];
-  sequencial_matrix = new float *[N_ROWS];
+  sequential_matrix = new float *[N_ROWS];
 
   initialize_matrix();
 
@@ -52,8 +54,13 @@ int main(int argc, char** argv)
   
   // std::cout << "Matrix[200][200]:" << matrix[100][100] << std::endl;
   // print_solution();
-  validate_solution();
-
+  // validate_solution();
+  for (int i = 0; i < sizeof(arguments)/sizeof(*arguments); i+=2)
+  {
+    std::cout << "matrix value: " << matrix[arguments[i]][arguments[i + 1]];
+    std::cout << "sequential_matrix value: " << sequential_matrix[arguments[i]][arguments[i + 1]];
+  }
+  
   return 0;
 }
 
@@ -73,13 +80,13 @@ void initialize_matrix()
   for (int i = 0; i < N_ROWS; i++)
   {
     float *row = new float[N_COLS];
-    sequencial_matrix[i] = row;
+    sequential_matrix[i] = row;
 
-    sequencial_matrix[0][i] = 250;
-    sequencial_matrix[i][0] = 150;
+    sequential_matrix[0][i] = 250;
+    sequential_matrix[i][0] = 150;
   }
 
-  sequencial_matrix[0][0] = 0;
+  sequential_matrix[0][0] = 0;
   matrix[0][0] = 0;
 }
 
@@ -89,9 +96,9 @@ void execute_in_sequence()
   {
     for (int j = 1; j < N_COLS; j++)
     {
-      sequencial_matrix[i][j] = (abs(sin(sequencial_matrix[i][j - 1])) +
-                      abs(sin(sequencial_matrix[i - 1][j - 1])) +
-                      abs(sin(sequencial_matrix[i - 1][j]))) *
+      sequential_matrix[i][j] = (abs(sin(sequential_matrix[i][j - 1])) +
+                      abs(sin(sequential_matrix[i - 1][j - 1])) +
+                      abs(sin(sequential_matrix[i - 1][j]))) *
                      100;
     }
   }
@@ -164,7 +171,7 @@ void validate_solution()
   {
     for (size_t j = 0; j < N_COLS; j++)
     {
-     if (matrix[i][j] != sequencial_matrix[i][j])
+     if (matrix[i][j] != sequential_matrix[i][j])
      {
        std::cout << "Not the same\n";
      } 

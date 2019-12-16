@@ -4,7 +4,7 @@
 class get_opt
 {
 public:
-  static int get_options(int argc, char **argv);
+  static int get_options(int* arguments, int argc, char **argv);
   static void usage();
 };
 

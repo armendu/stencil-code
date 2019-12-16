@@ -47,7 +47,7 @@ all: $(OBJ_DIR) $(EXE_DIR)/main #$(EXE_DIR)
 $(EXE_DIR)/main: $(OBJ_DIR)/stencil_code_main.o
 
 $(OBJ_DIR)/stencil_code_main.o: $(SRC_DIR)/stencil_code_main.cpp 
-	g++ $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/stencil_code_main.o $(SRC_DIR)/stencil_code_main.cpp $(SRC_DIR)/get_opt.cpp $(INCLUDE_DIR)/get_opt.h $(SRC_DIR)/io.cpp $(INCLUDE_DIR)/io.h $(SRC_DIR)/arguments.cpp $(INCLUDE_DIR)/arguments.h
+	g++ $(FLAGS) $(INCLUDEPATHS) -o $(OBJ_DIR)/stencil_code_main.o $(SRC_DIR)/stencil_code_main.cpp $(SRC_DIR)/get_opt.cpp $(INCLUDE_DIR)/get_opt.h $(SRC_DIR)/io.cpp $(INCLUDE_DIR)/io.h
 
 dox:
 	mkdir -p $(DOX_DIR)
