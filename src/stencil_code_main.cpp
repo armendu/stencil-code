@@ -22,7 +22,7 @@ float **sequential_matrix;
 
 int main(int argc, char **argv)
 {
-  std::cout << "Running..." << std::endl;
+  std::cout << "Running stencil code in parallel..." << std::endl;
 
   int *arguments = new int[argc - 1];
 
@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 
   io::write_result(duration);
 
+  std::cout << "Running stencil code in sequence..." << std::endl;
   execute_in_sequence();
 
   // print_solution();
@@ -103,7 +104,7 @@ void execute_in_parallel()
 {
   for (int i = 2; i < N_ROWS * 2; i++)
   {
-    #pragma omp parallel for num_threads(10)
+    #pragma omp parallel for num_threads(N_THREADS)
     for (int j = 1; j < i; j++)
     {
       int row = i - j;
@@ -125,7 +126,7 @@ void execute_in_parallel_2()
   {
     if (i < N_ROWS)
     {
-      #pragma omp parallel for num_threads(8)
+      #pragma omp parallel for num_threads(N_THREADS)
       for (int j = 1; j < i; j++)
       {
         matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) +
@@ -136,7 +137,7 @@ void execute_in_parallel_2()
     }
     else
     {
-      #pragma omp parallel for num_threads(8)
+      #pragma omp parallel for num_threads(N_THREADS)
       for (int j = N_ROWS - 1; j >= i - N_ROWS + 1; j--)
       {
         matrix[i - j][j] = (fabs(sin(matrix[i - j - 1][j - 1])) +
@@ -164,8 +165,10 @@ void validate_solution(int *arguments)
 {
   for (size_t i = 0; i < sizeof(arguments) / sizeof(*arguments); i += 2)
   {
-    std::cout << "matrix value: " << matrix[arguments[i]][arguments[i + 1]];
-    std::cout << "sequential_matrix value: " << sequential_matrix[arguments[i]][arguments[i + 1]];
+    std::cout << "Parallel Matrix[" << arguments[i] << "][" << arguments[i + 1] << "]: ";
+    std::cout << matrix[arguments[i]][arguments[i + 1]] << std::endl;
+    std::cout << "Sequential Matrix[" << arguments[i] << "][" << arguments[i + 1] << "]: ";
+    std::cout << sequential_matrix[arguments[i]][arguments[i + 1]] << std::endl;
 
     if (matrix[arguments[i]][arguments[i + 1]] != sequential_matrix[arguments[i]][arguments[i + 1]])
     {
