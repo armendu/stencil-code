@@ -6,8 +6,8 @@
 #include "get_opt.h"
 #include "io.h"
 
-#define N_ROWS    46080//8192
-#define N_COLS    46080//8192
+#define N_ROWS    46080//8192 //46080
+#define N_COLS    46080//8192 //46080
 #define N_THREADS 8
 #define ERROR     -1
 
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   std::cout << "Started timer." << std::endl;
 
   auto t1 = std::chrono::high_resolution_clock::now();
-  // execute_in_parallel_2();
+  // execute_in_parallel();
   execute_in_sequence();
   auto t2 = std::chrono::high_resolution_clock::now();
 
@@ -52,7 +52,6 @@ int main(int argc, char **argv)
   std::cout << "Running stencil code in sequence..." << std::endl;
   execute_in_sequence();
 
-  // print_solution();
   validate_solution(arguments);
 
   return 0;
@@ -167,7 +166,7 @@ void print_solution()
 
 void validate_solution(int *arguments)
 {
-  for (size_t i = 0; i < sizeof(arguments) / sizeof(*arguments); i += 2)
+  for (size_t i = 0; i < (sizeof(arguments) / sizeof(*arguments)); i++)
   {
     std::cout << "Parallel Matrix[" << arguments[i] << "][" << arguments[i + 1] << "]: ";
     std::cout << matrix[arguments[i]][arguments[i + 1]] << std::endl;
